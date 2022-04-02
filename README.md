@@ -2,6 +2,17 @@
 
 A new Flutter project.
 
+## Installation
+
+### Mac
+```
+brew install wget
+```
+
+```
+sh install.sh
+```
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.

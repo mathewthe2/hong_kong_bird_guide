@@ -1,9 +1,10 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:async';
-import 'package:tflite/tflite.dart';
+import 'package:image/image.dart' as img;
+import 'classifier.dart';
+import 'classifier_quant.dart';
 
 
 void main() => runApp(MyApp());
@@ -37,7 +38,15 @@ class MyImagePickerState extends State {
 
   XFile? imageURI;
   String result = '';
-  String path = '';
+  String path = 'assets/kingfisher.jpeg';
+
+  late Classifier _classifier;
+
+  @override
+  void initState() {
+    super.initState();
+    _classifier = ClassifierQuant();
+  }
 
   Future getImageFromCamera() async {
     final ImagePicker _picker = ImagePicker();
@@ -59,24 +68,14 @@ class MyImagePickerState extends State {
     });
   }
 
-  Future classifyImage() async {
-
-    // await Tflite.loadModel(model: "assets/lite-model_aiy_vision_classifier_birds_V1_3.tflite");
-    await Tflite.loadModel(
-      model: "assets/fullmodel_2.tflite",
-      labels: "assets/labels_2.txt",
-    );
-    // if (path == null) return;
-    print("path " + path);
-    var output = await Tflite.runModelOnImage(path: path);
-
+  Future classify() async{
+    img.Image? imageInput = img.decodeImage(File(imageURI!.path).readAsBytesSync());
+    if (imageInput == null) return;
+    var pred = _classifier.predict(imageInput);
     setState(() {
-      result = output.toString();
+      result = pred.toString();
     });
-
-
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +111,7 @@ class MyImagePickerState extends State {
                   Container(
                       margin: EdgeInsets.fromLTRB(0, 30, 0, 20),
                       child: RaisedButton(
-                        onPressed: () => classifyImage(),
+                        onPressed: () => classify(),
                         child: Text('Classify Image'),
                         textColor: Colors.white,
                         color: Colors.blue,
