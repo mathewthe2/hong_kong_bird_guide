@@ -15,15 +15,91 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        home: Scaffold(
-            appBar: AppBar(
-                title: Text('HK Bird Guide'),
-                backgroundColor: Colors.transparent
-            ),
-            body: Center(
-                child: MyImagePicker()
-            )
-        )
+        home: MyStatefulWidget(),
+    );
+  }
+}
+
+class ClassificationWidget extends StatelessWidget {
+  const ClassificationWidget({ Key? key }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+          appBar: AppBar(
+              title: Text('HK Bird Guide'),
+              backgroundColor: Colors.transparent
+          ),
+          body: Center(
+              child: MyImagePicker()
+          )
+      )
+    );
+  }
+}
+
+class MyStatefulWidget extends StatefulWidget {
+  const MyStatefulWidget({Key? key}) : super(key: key);
+
+  @override
+  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
+}
+
+class _MyStatefulWidgetState extends State<MyStatefulWidget> {
+  int _selectedIndex = 0;
+  static const TextStyle optionStyle =
+  TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  static const List<Widget> _widgetOptions = <Widget>[
+    ClassificationWidget(),
+    // Text(
+    //   'Index 0: Hoddme',
+    //   style: optionStyle,
+    // ),
+    Text(
+      'Index 1: Business',
+      style: optionStyle,
+    ),
+    Text(
+      'Settings',
+      style: optionStyle,
+    ),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('BottomNavigationBar Sample'),
+      ),
+      body: Center(
+        child: _widgetOptions.elementAt(_selectedIndex),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Search',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list),
+            label: 'Birds',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.amber[800],
+        onTap: _onItemTapped,
+      ),
     );
   }
 }
@@ -92,9 +168,9 @@ class MyImagePickerState extends State {
                       margin: EdgeInsets.fromLTRB(0, 30, 0, 20),
                       child: RaisedButton(
                         onPressed: () => getImageFromCamera(),
-                        child: Text('Click Here To Select Image From Camera'),
+                        child: Text('Search with Camera'),
                         textColor: Colors.white,
-                        color: Colors.blue,
+                        color: Colors.orange,
                         padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
                       )),
 
@@ -102,9 +178,9 @@ class MyImagePickerState extends State {
                       margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
                       child: RaisedButton(
                         onPressed: () => getImageFromGallery(),
-                        child: Text('Click Here To Select Image From Gallery'),
+                        child: Text('Search from Gallery'),
                         textColor: Colors.white,
-                        color: Colors.blue,
+                        color: Colors.orange,
                         padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
                       )),
 
@@ -114,7 +190,7 @@ class MyImagePickerState extends State {
                         onPressed: () => classify(),
                         child: Text('Classify Image'),
                         textColor: Colors.white,
-                        color: Colors.blue,
+                        color: Colors.orange,
                         padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
                       )),
 
