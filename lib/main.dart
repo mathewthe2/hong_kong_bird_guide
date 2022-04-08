@@ -5,6 +5,9 @@ import 'dart:async';
 import 'package:image/image.dart' as img;
 import 'classifier.dart';
 import 'classifier_quant.dart';
+import 'birdsList.dart';
+import 'birdsInfo.dart';
+
 
 
 void main() => runApp(MyApp());
@@ -27,10 +30,6 @@ class ClassificationWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-          appBar: AppBar(
-              title: Text('HK Bird Guide'),
-              backgroundColor: Colors.transparent
-          ),
           body: Center(
               child: MyImagePicker()
           )
@@ -56,10 +55,11 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     //   'Index 0: Hoddme',
     //   style: optionStyle,
     // ),
-    Text(
-      'Index 1: Business',
-      style: optionStyle,
-    ),
+    // Text(
+    //   'Index 1: Business',
+    //   style: optionStyle,
+    // ),
+    BirdList(),
     Text(
       'Settings',
       style: optionStyle,
@@ -76,7 +76,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('BottomNavigationBar Sample'),
+        title: const Text('Bird Guide HK'),
       ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
