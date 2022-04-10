@@ -66,6 +66,9 @@ flutter:
     - assets/lite-model_aiy_vision_classifier_birds_V1_3.tflite
     - assets/BirdNET_6K_GLOBAL_MODEL.tflite
     - assets/labels.txt
+    - assets/kingfisher.jpeg
+    - assets/birds/full_images/
+    - assets/birds/description/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

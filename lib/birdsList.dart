@@ -19,14 +19,17 @@ class BirdList extends StatelessWidget {
   }
 }
 
+String getBirdImagePath(String bird_sci) {
+  return 'assets/birds/full_images/' + bird_sci + '.jpg';
+}
+
 Widget readList(context, index) {
-  return new Container(
+  return Container(
     child: Column(
       children: <Widget>[
         ListTile(
             title: Text(birdList[index]["bird_zh"]), //the title of this page
-            leading: Image.asset(birdList[index]
-                ["path"]), //show the image at the beginning of the list
+            leading: Image.asset(getBirdImagePath(birdList[index]["bird_sci"])), //show the image at the beginning of the list
             subtitle: Text(birdList[index]["bird_en"]), //subtitle
             onTap: () {
               Navigator.push(
@@ -36,7 +39,7 @@ Widget readList(context, index) {
                       bird_zh: birdList[index]['bird_zh'],
                       bird_en: birdList[index]['bird_en'],
                       bird_sci: birdList[index]['bird_sci'],
-                      path: birdList[index]['path'],
+                      path: getBirdImagePath(birdList[index]['bird_sci']),
                       des_zh: birdList[index]['des_zh'],
                       des_en: birdList[index]['des_en']),
                   //settings: RouteSettings(
