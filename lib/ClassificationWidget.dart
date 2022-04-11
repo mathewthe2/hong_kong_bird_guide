@@ -6,7 +6,6 @@ import 'dart:io';
 import 'dart:async';
 import 'package:image/image.dart' as img;
 import 'birdsData.dart';
-import 'birdsDetail.dart';
 
 class ClassificationWidget extends StatelessWidget {
   const ClassificationWidget({Key? key}) : super(key: key);
@@ -41,128 +40,6 @@ class MyImagePickerState extends State<MyImagePicker> {
     _classifier = ClassifierQuant();
   }
 
-  void showBirdDetails(BuildContext context, dynamic birdData) {
-    print(context);
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => birdsDetails(
-            bird_zh: birdData['bird_zh'],
-            bird_en: birdData['bird_en'],
-            bird_sci: birdData['bird_sci'],
-            path: getBirdImagePath(birdData['bird_sci']),
-            des_zh: birdData['des_zh'],
-            des_en: birdData['des_en']),
-        //settings: RouteSettings(
-        //arguments: birdList[index],
-        //),
-      ),
-    );
-  }
-
-  Future showClassificationResult(BuildContext parentContext) async {
-    print(parentContext);
-    final birdSciName = result.contains('Category "')
-        ? result.split('Category "')[1].split('"')[0]
-        : '';
-    final confidence = result.contains('score=')
-        ? result.split('score=')[1].split(')')[0]
-        : '';
-    final birdData = birdSciName == '' ? null : findBirdData(birdSciName);
-    final birdImagePath =
-        birdData == null ? '' : getBirdImagePath(birdData['bird_sci']);
-    return showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-        builder: (context) {
-          return Wrap(children: [
-            Container(
-                // height: MediaQuery.of(context).size.height * 0.5,
-                decoration: new BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: new BorderRadius.only(
-                    topLeft: const Radius.circular(25.0),
-                    topRight: const Radius.circular(25.0),
-                  ),
-                ),
-                child: Center(
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        // imageURI == null
-                        //     ? const Text('No image selected.')
-                        //     : Image.file(File(imageURI!.path),
-                        //         width: 50, height: 50, fit: BoxFit.cover),
-                        // Text(birdSciName),
-                        birdData == null
-                            ? const Text('No details found.')
-                            : Column(children: <Widget>[
-                                Row(
-                                  children: [
-                                    Padding(
-                                        padding: const EdgeInsets.all(5.0),
-                                        child: Image.file(
-                                          File(imageURI!.path),
-                                          width: 185,
-                                          height: 120,
-                                          fit: BoxFit.cover,
-                                        )),
-                                    Padding(
-                                        padding: const EdgeInsets.all(5.0),
-                                        child: Image.asset(birdImagePath,
-                                            width: 185,
-                                            height: 120,
-                                            fit: BoxFit.cover)),
-                                  ],
-                                ),
-                                Text(birdData['bird_en']),
-                                Text(birdData['bird_zh']),
-                                Container(
-                                    margin: EdgeInsets.fromLTRB(0, 30, 0, 20),
-                                    child: RaisedButton(
-                                      onPressed: () => showBirdDetails(
-                                          parentContext, birdData),
-                                      child: Text('More'),
-                                      textColor: Colors.white,
-                                      color: Colors.deepPurpleAccent,
-                                      padding:
-                                          EdgeInsets.fromLTRB(12, 12, 12, 12),
-                                    )),
-                              ])
-                      ]),
-                ))
-          ]);
-        });
-  }
-
-  Future showSheet(BuildContext parentContext) async {
-    return showModalBottomSheet(
-        context: context,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-        builder: (context) {
-          return Wrap(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text('Take photo'),
-                onTap: () {
-                  // pass
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.perm_media_outlined),
-                title: const Text('Choose photo'),
-                onTap: () {
-                  getImageFromGallery(parentContext);
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          );
-        });
-  }
-
   Future getImageFromCamera() async {
     final ImagePicker _picker = ImagePicker();
     var image = await _picker.pickImage(source: ImageSource.camera);
@@ -172,32 +49,136 @@ class MyImagePickerState extends State<MyImagePicker> {
     });
   }
 
-  Future getImageFromGallery(BuildContext parentContext) async {
-    final ImagePicker _picker = ImagePicker();
-    var image = await _picker.pickImage(source: ImageSource.gallery);
-
-    setState(() {
-      imageURI = image;
-      path = image?.path ?? '';
-    });
-    if (image != null) {
-      classify(parentContext);
-    }
-  }
-
-  Future classify(parentContext) async {
-    img.Image? imageInput =
-        img.decodeImage(File(imageURI!.path).readAsBytesSync());
-    if (imageInput == null) return;
-    var pred = _classifier.predict(imageInput);
-    setState(() {
-      result = pred.toString();
-    });
-    showClassificationResult(parentContext);
-  }
-
   @override
   Widget build(BuildContext context) {
+    Future showClassificationResult() async {
+      final birdSciName = result.contains('Category "')
+          ? result.split('Category "')[1].split('"')[0]
+          : '';
+      final confidence = result.contains('score=')
+          ? result.split('score=')[1].split(')')[0]
+          : '';
+      final birdData = birdSciName == '' ? null : findBirdData(birdSciName);
+      final birdImagePath =
+          birdData == null ? '' : getBirdImagePath(birdData['bird_sci']);
+      return showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
+          builder: (context) {
+            return Wrap(children: [
+              Container(
+                  // height: MediaQuery.of(context).size.height * 0.5,
+                  decoration: new BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: new BorderRadius.only(
+                      topLeft: const Radius.circular(25.0),
+                      topRight: const Radius.circular(25.0),
+                    ),
+                  ),
+                  child: Center(
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          // imageURI == null
+                          //     ? const Text('No image selected.')
+                          //     : Image.file(File(imageURI!.path),
+                          //         width: 50, height: 50, fit: BoxFit.cover),
+                          // Text(birdSciName),
+                          birdData == null
+                              ? const Text('No details found.')
+                              : Column(children: <Widget>[
+                                  Row(
+                                    children: [
+                                      Padding(
+                                          padding: const EdgeInsets.all(5.0),
+                                          child: Image.file(
+                                            File(imageURI!.path),
+                                            width: 185,
+                                            height: 120,
+                                            fit: BoxFit.cover,
+                                          )),
+                                      Padding(
+                                          padding: const EdgeInsets.all(5.0),
+                                          child: Image.asset(birdImagePath,
+                                              width: 185,
+                                              height: 120,
+                                              fit: BoxFit.cover)),
+                                    ],
+                                  ),
+                                  Text(birdData['bird_en']),
+                                  Text(birdData['bird_zh']),
+                                  Container(
+                                      margin: EdgeInsets.fromLTRB(0, 30, 0, 20),
+                                      child: RaisedButton(
+                                        onPressed: () => showBirdDetails(
+                                            widget.parentContext, birdData),
+                                        child: Text('More'),
+                                        textColor: Colors.white,
+                                        color: Colors.deepPurpleAccent,
+                                        padding:
+                                            EdgeInsets.fromLTRB(12, 12, 12, 12),
+                                      )),
+                                ])
+                        ]),
+                  ))
+            ]);
+          });
+    }
+
+    Future classify() async {
+      img.Image? imageInput =
+          img.decodeImage(File(imageURI!.path).readAsBytesSync());
+      if (imageInput == null) return;
+      var pred = _classifier.predict(imageInput);
+      setState(() {
+        result = pred.toString();
+      });
+      showClassificationResult();
+    }
+
+    Future getImageFromGallery() async {
+      final ImagePicker _picker = ImagePicker();
+      var image = await _picker.pickImage(source: ImageSource.gallery);
+
+      setState(() {
+        imageURI = image;
+        path = image?.path ?? '';
+      });
+      if (image != null) {
+        classify();
+      }
+    }
+
+    Future showSheet() async {
+      return showModalBottomSheet(
+          context: context,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
+          builder: (context) {
+            return Wrap(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.camera_alt),
+                  title: const Text('Take photo'),
+                  onTap: () {
+                    // pass
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.perm_media_outlined),
+                  title: const Text('Choose photo'),
+                  onTap: () {
+                    getImageFromGallery();
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          });
+    }
+
     return Scaffold(
         body: Center(
             child: Column(
@@ -210,7 +191,7 @@ class MyImagePickerState extends State<MyImagePicker> {
           Container(
               margin: EdgeInsets.fromLTRB(0, 60, 0, 40),
               child: RaisedButton(
-                onPressed: () => showSheet(widget.parentContext),
+                onPressed: () => showSheet(),
                 child: Text('Identify Bird'),
                 textColor: Colors.white,
                 color: Colors.deepPurpleAccent,
