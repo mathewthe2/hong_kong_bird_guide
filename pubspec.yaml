@@ -38,6 +38,8 @@ dependencies:
   image: ^3.1.3
   tflite_flutter_helper: ^0.3.1
   tflite_flutter: ^0.9.0
+  tflite_audio: ^0.3.0
+  webview_flutter: ^3.0.2
 
 dev_dependencies:
   flutter_test:
@@ -65,8 +67,12 @@ flutter:
   assets:
     - assets/lite-model_aiy_vision_classifier_birds_V1_3.tflite
     - assets/BirdNET_6K_GLOBAL_MODEL.tflite
+    - assets/soundclassifier.tflite
     - assets/labels.txt
+    - assets/labels2.txt
+    - assets/BirdNET_labels.txt
     - assets/kingfisher.jpeg
+    - assets/background.jpeg
     - assets/birds/full_images/
     - assets/birds/description/
 

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'birdsDetail.dart';
 import 'birdsInfo.dart';
+import 'birdsData.dart';
 
 class BirdList extends StatelessWidget {
-  const BirdList({ Key? key }) : super(key: key);
+  const BirdList({Key? key}) : super(key: key);
 
   // Read the list
   Widget _getListData(context, index) {
@@ -13,14 +14,10 @@ class BirdList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      //return the length of the list
+        //return the length of the list
         itemCount: birdList.length,
         itemBuilder: this._getListData);
   }
-}
-
-String getBirdImagePath(String bird_sci) {
-  return 'assets/birds/full_images/' + bird_sci + '.jpg';
 }
 
 Widget readList(context, index) {
@@ -29,8 +26,10 @@ Widget readList(context, index) {
       children: <Widget>[
         ListTile(
             title: Text(birdList[index]["bird_zh"]), //the title of this page
-            leading: Image.asset(getBirdImagePath(birdList[index]["bird_sci"])), //show the image at the beginning of the list
+            leading: Image.asset(getBirdImagePath(birdList[index]
+                ["bird_sci"])), //show the image at the beginning of the list
             subtitle: Text(birdList[index]["bird_en"]), //subtitle
+            trailing: Icon(Icons.keyboard_arrow_right),
             onTap: () {
               Navigator.push(
                 context,
@@ -50,8 +49,10 @@ Widget readList(context, index) {
             }),
         //divider line
         Divider(
-          color: Colors.grey,
+          color: Colors.blueGrey,
           height: 1,
+          indent: 15,
+          endIndent: 15,
         )
       ],
     ),

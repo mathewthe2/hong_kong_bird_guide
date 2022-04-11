@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'birdsList.dart';
-import 'birdsInfo.dart';
+// import 'birdsList.dart';
+// import 'birdsInfo.dart';
 
 class birdsDetails extends StatefulWidget {
   const birdsDetails(
@@ -54,6 +54,7 @@ class _birdsDetailsState extends State<birdsDetails> {
       ),
       appBar: AppBar(
         title: Text(widget.bird_zh),
+        backgroundColor: Colors.deepPurple,
       ),
       body: Column(
         children: [
@@ -63,7 +64,9 @@ class _birdsDetailsState extends State<birdsDetails> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
           Text(widget.bird_sci + '\n', style: TextStyle(fontSize: 15)),
           Image.asset(widget.path),
-          Text('\n' + des),
+          Padding(
+              padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+              child: Text('\n' + des)),
         ],
       ),
     );
