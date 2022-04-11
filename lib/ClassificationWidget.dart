@@ -40,15 +40,6 @@ class MyImagePickerState extends State<MyImagePicker> {
     _classifier = ClassifierQuant();
   }
 
-  Future getImageFromCamera() async {
-    final ImagePicker _picker = ImagePicker();
-    var image = await _picker.pickImage(source: ImageSource.camera);
-    setState(() {
-      imageURI = image;
-      path = image?.path ?? '';
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     Future showClassificationResult() async {
@@ -57,6 +48,9 @@ class MyImagePickerState extends State<MyImagePicker> {
           : '';
       final confidence = result.contains('score=')
           ? result.split('score=')[1].split(')')[0]
+          : '';
+      final matchPercentage = confidence.length > 0
+          ? (double.parse(confidence) * 100).toStringAsFixed(1) + '%'
           : '';
       final birdData = birdSciName == '' ? null : findBirdData(birdSciName);
       final birdImagePath =
@@ -87,8 +81,34 @@ class MyImagePickerState extends State<MyImagePicker> {
                           //         width: 50, height: 50, fit: BoxFit.cover),
                           // Text(birdSciName),
                           birdData == null
-                              ? const Text('No details found.')
+                              ? Column(children: <Widget>[
+                                  imageURI == null
+                                      ? const Text('No image selected.')
+                                      : Padding(
+                                          padding: const EdgeInsets.all(10.0),
+                                          child: Image.file(
+                                              File(imageURI!.path),
+                                              width: 180,
+                                              height: 180,
+                                              fit: BoxFit.cover)),
+                                  Text(birdSciName,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      )),
+                                  const Padding(
+                                      padding:
+                                          EdgeInsets.fromLTRB(0, 10, 0, 10),
+                                      child: Text('No details found.')),
+                                ])
                               : Column(children: <Widget>[
+                                  Padding(
+                                      padding:
+                                          EdgeInsets.fromLTRB(0, 10, 0, 10),
+                                      child: Text('Match: ' + matchPercentage,
+                                          style: const TextStyle(
+                                            color: Colors.grey,
+                                          ))),
                                   Row(
                                     children: [
                                       Padding(
@@ -107,7 +127,14 @@ class MyImagePickerState extends State<MyImagePicker> {
                                               fit: BoxFit.cover)),
                                     ],
                                   ),
-                                  Text(birdData['bird_en']),
+                                  Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          0, 10, 0, 0),
+                                      child: Text(birdData['bird_en'],
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                          ))),
                                   Text(birdData['bird_zh']),
                                   Container(
                                       margin: EdgeInsets.fromLTRB(0, 30, 0, 20),
@@ -151,6 +178,18 @@ class MyImagePickerState extends State<MyImagePicker> {
       }
     }
 
+    Future getImageFromCamera() async {
+      final ImagePicker _picker = ImagePicker();
+      var image = await _picker.pickImage(source: ImageSource.camera);
+      setState(() {
+        imageURI = image;
+        path = image?.path ?? '';
+      });
+      if (image != null) {
+        classify();
+      }
+    }
+
     Future showSheet() async {
       return showModalBottomSheet(
           context: context,
@@ -163,7 +202,8 @@ class MyImagePickerState extends State<MyImagePicker> {
                   leading: const Icon(Icons.camera_alt),
                   title: const Text('Take photo'),
                   onTap: () {
-                    // pass
+                    getImageFromCamera();
+                    Navigator.pop(context);
                   },
                 ),
                 ListTile(
@@ -184,10 +224,6 @@ class MyImagePickerState extends State<MyImagePicker> {
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-          // imageURI == null
-          //     ? Text('No image selected.')
-          //     : Image.file(File(imageURI!.path),
-          //         width: 300, height: 200, fit: BoxFit.cover),
           Container(
               margin: EdgeInsets.fromLTRB(0, 60, 0, 40),
               child: RaisedButton(
@@ -197,16 +233,6 @@ class MyImagePickerState extends State<MyImagePicker> {
                 color: Colors.deepPurpleAccent,
                 padding: EdgeInsets.fromLTRB(24, 24, 24, 24),
               )),
-          // Container(
-          //     margin: EdgeInsets.fromLTRB(0, 30, 0, 20),
-          //     child: RaisedButton(
-          //       onPressed: () => showClassificationResult(widget.parentContext),
-          //       child: const Text('Show Result'),
-          //       textColor: Colors.white,
-          //       color: Colors.orange,
-          //       padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-          //     )),
-          // result == null ? Text('Result') : Text(result)
         ])));
   }
 }
