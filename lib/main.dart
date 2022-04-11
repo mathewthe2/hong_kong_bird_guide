@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'dart:async';
-import 'package:image/image.dart' as img;
-import 'classifier.dart';
-import 'classifier_quant.dart';
 import 'birdsList.dart';
 import 'ClassificationWidget.dart';
-import 'SoundClassificationWidget.dart';
+// import 'SoundClassificationWidget.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 // import 'birdsInfo.dart';
 
