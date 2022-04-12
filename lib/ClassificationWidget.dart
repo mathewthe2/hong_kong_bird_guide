@@ -139,8 +139,11 @@ class MyImagePickerState extends State<MyImagePicker> {
                                   Container(
                                       margin: EdgeInsets.fromLTRB(0, 30, 0, 20),
                                       child: RaisedButton(
-                                        onPressed: () => showBirdDetails(
-                                            widget.parentContext, birdData),
+                                        onPressed: () {
+                                          showBirdDetails(
+                                              widget.parentContext, birdData);
+                                          Navigator.pop(context);
+                                        },
                                         child: Text('More'),
                                         textColor: Colors.white,
                                         color: Colors.deepPurpleAccent,
