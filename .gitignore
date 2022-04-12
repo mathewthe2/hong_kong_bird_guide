@@ -9,9 +9,6 @@
 .history
 .svn/
 
-# TF binaries
-*.so
-
 # IntelliJ related
 *.iml
 *.ipr
