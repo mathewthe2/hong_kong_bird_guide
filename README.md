@@ -2,18 +2,21 @@
 
 A new Flutter project.
 
-## Initial setup for TensorFlow
+## Setup for TensorFlow Binaries
+
+Note: flex binaries not ready for x86. Use either real devices or emulation on ARM / Apple Silicon. 
+More: https://www.tensorflow.org/lite/guide/ops_select
 
 ### Android
 
-Mac:
+Mac (already included):
 
 ```
 brew install wget
 sh install.sh
 ```
 
-Linux:
+Linux (already included):
 
 `sh install.sh -d`
 
