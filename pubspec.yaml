@@ -73,6 +73,7 @@ flutter:
     - assets/BirdNET_labels.txt
     - assets/kingfisher.jpeg
     - assets/background.jpeg
+    - assets/birdsounds.wav
     - assets/birds/full_images/
     - assets/birds/description/
 

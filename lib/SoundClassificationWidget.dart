@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
-import 'dart:developer';
-import 'package:tflite_audio/tflite_audio.dart';
-import 'package:flutter/services.dart';
-import 'dart:convert';
+// import 'dart:ui';
+import 'audioClassifier.dart';
+import 'package:flutter/material.dart';
+import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 
 class SoundClassificationWidget extends StatelessWidget {
   const SoundClassificationWidget({Key? key}) : super(key: key);
@@ -14,217 +13,190 @@ class SoundClassificationWidget extends StatelessWidget {
   }
 }
 
-//This example showcases how to take advantage of all the futures and streams
-///from the plugin.
-class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+const int sampleRate = 48000;
+const int sampleSize = sampleRate * 3;
 
+class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final isRecording = ValueNotifier<bool>(false);
-  Stream<Map<dynamic, dynamic>>? result;
+  RecorderStream _recorder = RecorderStream();
 
-  ///example values for google's teachable machine model
-  final String model = 'assets/soundclassifier.tflite';
-  final String label = 'assets/labels2.txt';
-  final String inputType = 'rawAudio';
+  bool inputState = true;
 
-  final int sampleRate = 44100;
-  final int bufferSize = 11016;
+  List<int> _micChunks = [];
+  List<int> _micChunksCompleted = [];
+  bool _isRecording = false;
+  late StreamSubscription _recorderStatus;
+  late StreamSubscription _audioStream;
 
-  ///Optional parameters you can adjust to modify your input and output
-  final bool outputRawScores = false;
-  final int numOfInferences = 5;
-  final int numThreads = 1;
-  final bool isAsset = true;
+  late StreamController<List<Category>> streamController;
+  late Timer _timer;
 
-  ///Adjust the values below when tuning model detection.
-  final double detectionThreshold = 0.3;
-  final int averageWindowDuration = 1000;
-  final int minimumTimeBetweenSamples = 30;
-  final int suppressionTime = 1500;
+  late AudioClassifier _classifier;
+
+  List<Category> preds = [];
+
+  // RandomColor randomColorGen = RandomColor();
+
+  Category? prediction;
 
   @override
   void initState() {
     super.initState();
-    TfliteAudio.loadModel(
-      // numThreads: this.numThreads,
-      // isAsset: this.isAsset,
-      // outputRawScores: outputRawScores,
-      inputType: inputType,
-      model: model,
-      label: label,
-    );
-
-    //spectrogram parameters
-    // TfliteAudio.setSpectrogramParameters(nFFT: 256, hopLength: 129);
-
-    // mfcc parameters
-    TfliteAudio.setSpectrogramParameters(nMFCC: 40, hopLength: 16384);
-  }
-
-  void getResult() {
-    ///example for recording recognition
-    result = TfliteAudio.startAudioRecognition(
-      sampleRate: sampleRate,
-      bufferSize: bufferSize,
-      numOfInferences: numOfInferences,
-      // audioLength: audioLength,
-      // detectionThreshold: detectionThreshold,
-      // averageWindowDuration: averageWindowDuration,
-      // minimumTimeBetweenSamples: minimumTimeBetweenSamples,
-      // suppressionTime: suppressionTime,
-    );
-
-    ///Below returns a map of values. The keys are:
-    ///"recognitionResult", "hasPermission", "inferenceTime"
-    result
-        ?.listen((event) =>
-            log("Recognition Result: " + event["recognitionResult"].toString()))
-        .onDone(() => isRecording.value = false);
-  }
-
-  ///fetches the labels from the text file in assets
-  Future<List<String>> fetchLabelList() async {
-    List<String> _labelList = [];
-    await rootBundle.loadString(this.label).then((q) {
-      for (String i in const LineSplitter().convert(q)) {
-        _labelList.add(i);
+    streamController = StreamController();
+    initPlugin();
+    _classifier = AudioClassifier();
+    _timer = Timer.periodic(Duration(seconds: 3), (Timer t) {
+      if (_micChunksCompleted.length == sampleSize) {
+        streamController.add(_classifier.predict(_micChunksCompleted));
+        _timer.cancel();
       }
     });
-    return _labelList;
   }
 
-  ///handles null exception if snapshot is null.
-  String showResult(AsyncSnapshot snapshot, String key) =>
-      snapshot.hasData ? snapshot.data[key].toString() : '0 ';
+  @override
+  void dispose() {
+    _recorderStatus.cancel();
+    _audioStream.cancel();
+    _timer.cancel();
+    super.dispose();
+  }
+
+  Future<void> initPlugin() async {
+    _recorderStatus = _recorder.status.listen((status) {
+      if (mounted)
+        setState(() {
+          _isRecording = status == SoundStreamStatus.Playing;
+        });
+    });
+
+    _audioStream = _recorder.audioStream.listen((data) {
+      if (_micChunks.length > sampleSize) {
+        _micChunks.clear();
+      }
+
+      _micChunks.addAll(data);
+
+      if (_micChunks.length == sampleSize) {
+        // print(_micChunks.length);
+        _micChunksCompleted = List<int>.from(_micChunks);
+      }
+    });
+
+    streamController.stream.listen((event) {
+      setState(() {
+        preds = event;
+      });
+    });
+
+    await Future.wait(
+        [_recorder.initialize(sampleRate: sampleRate), _recorder.start()]);
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        home: Scaffold(
-            key: _scaffoldKey,
-            appBar: AppBar(
-              title: const Text('Tflite-audio/speech'),
-            ),
-
-            ///Streambuilder for inference results
-            body: StreamBuilder<Map<dynamic, dynamic>>(
-                stream: result,
-                builder: (BuildContext context,
-                    AsyncSnapshot<Map<dynamic, dynamic>> inferenceSnapshot) {
-                  ///futurebuilder for getting the label list
-                  return FutureBuilder(
-                      future: fetchLabelList(),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<List<String>> labelSnapshot) {
-                        switch (inferenceSnapshot.connectionState) {
-                          case ConnectionState.none:
-                            //Loads the asset file.
-                            if (labelSnapshot.hasData) {
-                              return labelListWidget(labelSnapshot.data);
-                            } else {
-                              return const CircularProgressIndicator();
-                            }
-                          case ConnectionState.waiting:
-
-                            ///Widets will let the user know that its loading when waiting for results
-                            return Stack(children: <Widget>[
-                              Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: inferenceTimeWidget('calculating..')),
-                              labelListWidget(labelSnapshot.data),
-                            ]);
-
-                          ///Widgets will display the final results.
-                          default:
-                            return Stack(children: <Widget>[
-                              Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: inferenceTimeWidget(showResult(
-                                          inferenceSnapshot, 'inferenceTime') +
-                                      'ms')),
-                              labelListWidget(
-                                  labelSnapshot.data,
-                                  showResult(
-                                      inferenceSnapshot, 'recognitionResult'))
-                            ]);
-                        }
+      theme: ThemeData(primaryColor: Colors.orange, accentColor: Colors.orange),
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'TFL Audio Classification',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    "Input",
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  SizedBox(width: 8),
+                  Switch(
+                    value: inputState,
+                    onChanged: (value) {
+                      if (value) {
+                        _audioStream.resume();
+                      } else {
+                        _audioStream.pause();
+                      }
+                      setState(() {
+                        inputState = value;
                       });
-                }),
-            floatingActionButtonLocation:
-                FloatingActionButtonLocation.centerFloat,
-            floatingActionButton: ValueListenableBuilder(
-                valueListenable: isRecording,
-                builder: (context, value, widget) {
-                  if (value == false) {
-                    return FloatingActionButton(
-                      onPressed: () {
-                        isRecording.value = true;
-                        setState(() {
-                          getResult();
-                        });
-                      },
-                      backgroundColor: Colors.blue,
-                      child: const Icon(Icons.mic),
+                    },
+                  ),
+                ],
+              ),
+              Divider(),
+              if (inputState)
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: preds.length,
+                  itemBuilder: (context, i) {
+                    final color = Colors.purple;
+                    return Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              preds.elementAt(i).label,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.blueAccent),
+                            ),
+                          ),
+                          Stack(
+                            alignment: AlignmentDirectional.centerStart,
+                            children: [
+                              PredictionScoreBar(
+                                ratio: 1,
+                                color: color.withOpacity(0.1),
+                              ),
+                              PredictionScoreBar(
+                                ratio: preds.elementAt(i).score,
+                                color: color,
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
                     );
-                  } else {
-                    return FloatingActionButton(
-                      onPressed: () {
-                        log('Audio Recognition Stopped');
-                        TfliteAudio.stopAudioRecognition();
-                      },
-                      backgroundColor: Colors.red,
-                      child: const Icon(Icons.adjust),
-                    );
-                  }
-                })));
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
+}
 
-  ///If snapshot data matches the label, it will change colour
-  Widget labelListWidget(List<String>? labelList, [String? result]) {
-    return Center(
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: labelList!.map((labels) {
-              if (labels == result) {
-                return Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: Text(labels.toString(),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25,
-                          color: Colors.green,
-                        )));
-              } else {
-                return Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: Text(labels.toString(),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        )));
-              }
-            }).toList()));
-  }
+class PredictionScoreBar extends StatelessWidget {
+  final double ratio;
+  final Color color;
+  const PredictionScoreBar({Key? key, required this.ratio, required this.color})
+      : super(key: key);
 
-  ///If the future isn't completed, shows 'calculating'. Else shows inference time.
-  Widget inferenceTimeWidget(String result) {
-    return Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Text(result,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-              color: Colors.black,
-            )));
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 16,
+      width: (MediaQuery.of(context).size.width * 0.6) * ratio,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.horizontal(
+          left: Radius.circular(4.0),
+          right: Radius.circular(ratio == 1 ? 4.0 : 0.0),
+        ),
+      ),
+    );
   }
 }
