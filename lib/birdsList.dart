@@ -38,7 +38,7 @@ Widget readList(context, index) {
                       bird_zh: birdList[index]['bird_zh'],
                       bird_en: birdList[index]['bird_en'],
                       bird_sci: birdList[index]['bird_sci'],
-                      path: getBirdImagePath(birdList[index]['bird_sci']),
+                      image_path: getBirdImagePath(birdList[index]['bird_sci']),
                       des_zh: birdList[index]['des_zh'],
                       des_en: birdList[index]['des_en']),
                   //settings: RouteSettings(

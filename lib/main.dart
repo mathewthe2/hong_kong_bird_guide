@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hk_bird_guide/SoundClassificationWidget.dart';
 import 'birdsList.dart';
+import 'dart:io';
 import 'ClassificationWidget.dart';
 // import 'SoundClassificationWidget.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -43,6 +45,13 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Enable virtual display.
+    if (Platform.isAndroid) WebView.platform = AndroidWebView();
   }
 
   @override
