@@ -56,7 +56,6 @@ void showBirdDetails(dynamic context, dynamic birdData) {
           bird_en: birdData['bird_en'],
           bird_sci: birdData['bird_sci'],
           image_path: getBirdImagePath(birdData['bird_sci']),
-          sound_path: getBirdSoundPath(birdData['bird_sci']),
           des_zh: birdData['des_zh'],
           des_en: birdData['des_en']),
     ),
