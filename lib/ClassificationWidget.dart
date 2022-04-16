@@ -103,30 +103,32 @@ class MyImagePickerState extends State<MyImagePicker> {
                                 ])
                               : Column(children: <Widget>[
                                   Padding(
-                                      padding:
-                                          EdgeInsets.fromLTRB(0, 10, 0, 10),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 10),
                                       child: Text('Match: ' + matchPercentage,
                                           style: const TextStyle(
                                             color: Colors.grey,
                                           ))),
-                                  Row(
-                                    children: [
-                                      Padding(
-                                          padding: const EdgeInsets.all(5.0),
-                                          child: Image.file(
-                                            File(imageURI!.path),
-                                            width: 185,
-                                            height: 120,
-                                            fit: BoxFit.cover,
-                                          )),
-                                      Padding(
-                                          padding: const EdgeInsets.all(5.0),
-                                          child: Image.asset(birdImagePath,
-                                              width: 185,
-                                              height: 120,
-                                              fit: BoxFit.cover)),
-                                    ],
-                                  ),
+                                  Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 5),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                              flex: 1,
+                                              child: Image.file(
+                                                File(imageURI!.path),
+                                                height: 120,
+                                                fit: BoxFit.cover,
+                                              )),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                              flex: 1,
+                                              child: Image.asset(birdImagePath,
+                                                  height: 120,
+                                                  fit: BoxFit.cover)),
+                                        ],
+                                      )),
                                   Padding(
                                       padding: const EdgeInsets.fromLTRB(
                                           0, 10, 0, 0),
