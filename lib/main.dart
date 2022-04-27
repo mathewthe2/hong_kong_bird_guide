@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:hk_bird_guide/SoundClassificationWidget.dart';
 import 'birdsList.dart';
 import 'package:line_icons/line_icons.dart';
 import 'BirdSearchDelegate.dart';
 import 'dart:io';
 import 'ClassificationWidget.dart';
-// import 'SoundClassificationWidget.dart';
+import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-// import 'birdsInfo.dart';
 
 void main() => runApp(MyApp());
 
@@ -28,15 +26,19 @@ class MyStatefulWidget extends StatefulWidget {
 }
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 2;
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
-    ClassificationWidget(),
     BirdList(),
     WebView(
         initialUrl: 'https://digital.lib.hkbu.edu.hk/hkwildtracks/',
         javascriptMode: JavascriptMode.unrestricted),
+    ClassificationWidget(),
+    Text(
+      'Favorites',
+      style: optionStyle,
+    ),
     Text(
       'Settings',
       style: optionStyle,
@@ -73,32 +75,35 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
-            backgroundColor: Colors.deepPurple,
+      bottomNavigationBar: ConvexAppBar(
+        items: const [
+          TabItem(
+            icon: LineIcons.crow,
+            title: 'Birds',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(LineIcons.crow),
-            label: 'Birds',
-            backgroundColor: Colors.deepPurple,
+          TabItem(
+            icon: Icons.map_rounded,
+            title: 'Map',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.map_rounded),
-            label: 'Map',
-            backgroundColor: Colors.deepPurple,
+          TabItem(
+            icon: Icons.search,
+            title: 'Search',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-            backgroundColor: Colors.deepPurple,
+          TabItem(
+            icon: Icons.star,
+            title: 'Favorites',
+          ),
+          TabItem(
+            icon: Icons.settings,
+            title: 'Settings',
           ),
         ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white38,
+        initialActiveIndex: _selectedIndex,
+        // selectedItemColor: Colors.white,
+        // unselectedItemColor: Colors.white38,
+        backgroundColor: Colors.deepPurple,
+        color: Colors.white38,
+        activeColor: Colors.white,
         onTap: _onItemTapped,
       ),
     );

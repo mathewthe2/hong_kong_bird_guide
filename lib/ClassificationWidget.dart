@@ -4,8 +4,10 @@ import 'classifier_quant.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:async';
+import 'BirdSearchDelegate.dart';
 import 'package:image/image.dart' as img;
 import 'birdsData.dart';
+import 'randomBird.dart';
 
 class ClassificationWidget extends StatelessWidget {
   const ClassificationWidget({Key? key}) : super(key: key);
@@ -64,11 +66,11 @@ class MyImagePickerState extends State<MyImagePicker> {
             return Wrap(children: [
               Container(
                   // height: MediaQuery.of(context).size.height * 0.5,
-                  decoration: new BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.white,
-                    borderRadius: new BorderRadius.only(
-                      topLeft: const Radius.circular(25.0),
-                      topRight: const Radius.circular(25.0),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25.0),
+                      topRight: Radius.circular(25.0),
                     ),
                   ),
                   child: Center(
@@ -225,19 +227,29 @@ class MyImagePickerState extends State<MyImagePicker> {
     }
 
     return Scaffold(
-        body: Center(
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-          Container(
-              margin: EdgeInsets.fromLTRB(0, 60, 0, 40),
-              child: RaisedButton(
-                onPressed: () => showSheet(),
-                child: Text('Identify Bird'),
-                textColor: Colors.white,
-                color: Colors.deepPurpleAccent,
-                padding: EdgeInsets.fromLTRB(24, 24, 24, 24),
-              )),
-        ])));
+        body: Column(children: <Widget>[
+      RandomBird(parentContext: widget.parentContext),
+      Expanded(
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        ElevatedButton(
+            onPressed: () => showSheet(),
+            child: const Text('Identify Bird'),
+            style: ElevatedButton.styleFrom(
+              primary: Colors.deepPurpleAccent,
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+            )),
+        Padding(
+            padding: const EdgeInsets.only(left: 10),
+            child: ElevatedButton(
+                onPressed: () => showSearch(
+                    context: widget.parentContext,
+                    delegate: BirdSearchDelegate()),
+                child: const Text('Search Bird'),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.deepPurpleAccent,
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                )))
+      ]))
+    ]));
   }
 }

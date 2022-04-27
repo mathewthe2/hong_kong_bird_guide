@@ -1,3 +1,0 @@
-0 Background Noise
-1 no
-2 yes

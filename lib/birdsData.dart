@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import "dart:math";
 import 'birdsInfo.dart';
 import 'birdsDetail.dart';
 
@@ -55,6 +56,11 @@ String getBirdVideoURL(String birdSci) {
     return 'https://search.macaulaylibrary.org/catalog?taxonCode=${taxon}&mediaType=v';
   }
   return '';
+}
+
+dynamic getRandomBird() {
+  Random random = Random();
+  return birdList[random.nextInt(birdList.length)];
 }
 
 dynamic findBirdData(String birdSci) => birdList

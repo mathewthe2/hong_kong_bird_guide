@@ -16,26 +16,20 @@ class birdsDetails extends StatefulWidget {
       required this.des_en})
       //required this.des})
       : super(key: key);
-  final String bird_zh, bird_en, bird_sci, image_path, des_zh, des_en;
+  final String bird_sci, bird_zh, bird_en, image_path, des_zh, des_en;
   @override
   State<birdsDetails> createState() => _birdsDetailsState();
 }
 
-String des = '';
-bool language = true; //true: Zh, false: En
+enum Language { zh, en }
+Language language = Language.zh;
 
 class _birdsDetailsState extends State<birdsDetails> {
   int _selectedIndex = 0;
 
   onButtonPressed() {
     setState(() {
-      if (language) {
-        des = widget.des_zh;
-        language = false;
-      } else {
-        des = widget.des_en;
-        language = true;
-      }
+      language = language == Language.zh ? Language.en : Language.zh;
     });
   }
 
@@ -54,14 +48,6 @@ class _birdsDetailsState extends State<birdsDetails> {
 
   @override
   Widget build(BuildContext context) {
-    if (language) {
-      des = widget.des_zh;
-      language = true;
-    } else {
-      des = widget.des_en;
-      language = false;
-    }
-
     Widget birdInfo() {
       final int birdIndex = getBirdIndex(widget.bird_sci);
       final bool hasPreviousBird = birdIndex > 0;
@@ -105,6 +91,7 @@ class _birdsDetailsState extends State<birdsDetails> {
               ConstrainedBox(
                   constraints: const BoxConstraints(
                     minHeight: 200.0,
+                    maxHeight: 300.0,
                   ),
                   child: Container(
                       // width: double.infinity,
@@ -120,16 +107,19 @@ class _birdsDetailsState extends State<birdsDetails> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                    Text(widget.bird_en,
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20,
-                                            height: 2)),
+                                    // Text(widget.bird_en,
+                                    //     textAlign: TextAlign.center,
+                                    //     style: const TextStyle(
+                                    //         color: Colors.white,
+                                    //         fontSize: 20,
+                                    //         height: 2)),
                                     Padding(
                                         padding: const EdgeInsets.symmetric(
-                                            vertical: 15),
-                                        child: Text(des,
+                                            vertical: 10),
+                                        child: Text(
+                                            language == Language.en
+                                                ? widget.des_en
+                                                : widget.des_zh,
                                             textAlign: TextAlign.center,
                                             style: const TextStyle(
                                                 color: Colors.white,
@@ -155,8 +145,8 @@ class _birdsDetailsState extends State<birdsDetails> {
                       ))),
               Container(
                   height: 50,
-                  // width: 100,
                   margin: const EdgeInsets.fromLTRB(40, 20, 40, 0),
+                  padding: const EdgeInsets.only(bottom: 5),
                   decoration: BoxDecoration(
                     color: Colors.deepPurpleAccent,
                     shape: BoxShape.rectangle,
@@ -164,10 +154,14 @@ class _birdsDetailsState extends State<birdsDetails> {
                     border: Border.all(width: 1.5, color: Colors.grey[900]!),
                   ),
                   child: Center(
-                      child: Text(widget.bird_zh,
-                          style: const TextStyle(
+                      child: Text(
+                          language == Language.en
+                              ? widget.bird_en
+                              : widget.bird_zh,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
                             color: Colors.white,
-                            fontSize: 30,
+                            fontSize: language == Language.en ? 20 : 30,
                             fontWeight: FontWeight.bold,
                             shadows: <Shadow>[
                               Shadow(
@@ -208,14 +202,19 @@ class _birdsDetailsState extends State<birdsDetails> {
                 onPressed: () {
                   onButtonPressed();
                 },
-                backgroundColor: Colors.grey[900],
+                backgroundColor: Colors.orangeAccent,
                 child: const Icon(Icons.language),
               )
             : null,
         appBar: AppBar(
-          title: Text(widget.bird_zh),
-          backgroundColor: Colors.deepPurple,
-        ),
+            title: Text(widget.bird_en),
+            backgroundColor: Colors.deepPurple,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.star_border_sharp),
+                onPressed: () {},
+              ),
+            ]),
         body: _widgetOptions.elementAt(_selectedIndex),
         bottomNavigationBar: BottomNavigationBar(
           backgroundColor: Colors.deepPurple,
