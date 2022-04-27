@@ -63,17 +63,125 @@ class _birdsDetailsState extends State<birdsDetails> {
     }
 
     Widget birdInfo() {
+      final int birdIndex = getBirdIndex(widget.bird_sci);
+      final bool hasPreviousBird = birdIndex > 0;
+      final bool hasNewBird = nextBirdExists(birdIndex);
       return Column(
         children: [
-          Text(widget.bird_zh,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-          Text(widget.bird_en,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-          Text(widget.bird_sci + '\n', style: TextStyle(fontSize: 15)),
-          Image.asset(widget.image_path),
+          ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 300.0),
+              child: Hero(
+                tag: widget.bird_sci,
+                child: Image.asset(widget.image_path),
+              )),
           Padding(
-              padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-              child: Text('\n' + des)),
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                      onPressed: () {
+                        if (hasPreviousBird) {
+                          navigateToBird(context, birdIndex - 1);
+                        }
+                      },
+                      icon: Icon(Icons.arrow_back_ios,
+                          color: hasPreviousBird
+                              ? Colors.black87
+                              : Colors.black12)),
+                  IconButton(
+                      onPressed: () {
+                        if (hasNewBird) {
+                          navigateToBird(context, birdIndex + 1);
+                        }
+                      },
+                      icon: Icon(Icons.arrow_forward_ios,
+                          color: hasNewBird ? Colors.black87 : Colors.black12))
+                ],
+              )),
+          Stack(
+            alignment: Alignment.topCenter,
+            children: [
+              ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: 200.0,
+                  ),
+                  child: Container(
+                      // width: double.infinity,
+                      margin: const EdgeInsets.fromLTRB(20, 50, 20, 0),
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                      child: Center(
+                          child: ConstrainedBox(
+                              constraints: const BoxConstraints(
+                                maxHeight: 250.0,
+                              ),
+                              child: SingleChildScrollView(
+                                  child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                    Text(widget.bird_en,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                            height: 2)),
+                                    Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 15),
+                                        child: Text(des,
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontStyle: FontStyle.italic))),
+                                    const Divider(
+                                      color: Colors.grey,
+                                    ),
+                                    Text(widget.bird_sci,
+                                        style: const TextStyle(
+                                            color: Colors.white, height: 1.5)),
+                                  ])))),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[900],
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.circular(8.0),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black87,
+                            blurRadius: 10.0,
+                            offset: Offset(0.0, 10.0),
+                          ),
+                        ],
+                      ))),
+              Container(
+                  height: 50,
+                  // width: 100,
+                  margin: const EdgeInsets.fromLTRB(40, 20, 40, 0),
+                  decoration: BoxDecoration(
+                    color: Colors.deepPurpleAccent,
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(15.0),
+                    border: Border.all(width: 1.5, color: Colors.grey[900]!),
+                  ),
+                  child: Center(
+                      child: Text(widget.bird_zh,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                            shadows: <Shadow>[
+                              Shadow(
+                                offset: Offset(2, 3),
+                                blurRadius: 3.0,
+                                color: Color.fromARGB(255, 0, 0, 0),
+                              ),
+                            ],
+                          )))),
+            ],
+          ),
+          // Padding(
+          //     padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+          //     child: Text('\n' + des)),
         ],
       );
     }
@@ -95,13 +203,15 @@ class _birdsDetailsState extends State<birdsDetails> {
     ];
 
     return Scaffold(
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            onButtonPressed();
-          },
-          backgroundColor: Colors.blue,
-          child: const Icon(Icons.language),
-        ),
+        floatingActionButton: _selectedIndex == 0
+            ? FloatingActionButton(
+                onPressed: () {
+                  onButtonPressed();
+                },
+                backgroundColor: Colors.grey[900],
+                child: const Icon(Icons.language),
+              )
+            : null,
         appBar: AppBar(
           title: Text(widget.bird_zh),
           backgroundColor: Colors.deepPurple,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hk_bird_guide/SoundClassificationWidget.dart';
 import 'birdsList.dart';
+import 'package:line_icons/line_icons.dart';
+import 'BirdSearchDelegate.dart';
 import 'dart:io';
 import 'ClassificationWidget.dart';
 // import 'SoundClassificationWidget.dart';
@@ -58,9 +60,16 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bird Guide HK'),
-        backgroundColor: Colors.deepPurple,
-      ),
+          title: const Text('Bird Guide HK'),
+          backgroundColor: Colors.deepPurple,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.search),
+              tooltip: 'Search bird',
+              onPressed: () =>
+                  showSearch(context: context, delegate: BirdSearchDelegate()),
+            ),
+          ]),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
@@ -72,7 +81,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             backgroundColor: Colors.deepPurple,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.list_alt),
+            icon: Icon(LineIcons.crow),
             label: 'Birds',
             backgroundColor: Colors.deepPurple,
           ),
