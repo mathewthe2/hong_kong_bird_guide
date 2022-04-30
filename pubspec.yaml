@@ -42,7 +42,7 @@ dependencies:
   webview_flutter: ^3.0.2
   line_icons: ^2.0.1
   sticky_headers: ^0.2.0
-  convex_bottom_bar: ^latest_version
+  convex_bottom_bar: ^3.0.0
 
 dev_dependencies:
   flutter_test:
